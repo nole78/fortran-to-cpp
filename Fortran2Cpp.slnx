@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fortran2Cpp.Cli/Fortran2Cpp.Cli.csproj" />
+    <Project Path="src/Fortran2Cpp.Core/Fortran2Cpp.Core.csproj" />
+    <Project Path="src/Fortran2Cpp.Verification/Fortran2Cpp.Verification.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Fortran2Cpp.Tests/Fortran2Cpp.Tests.csproj" />
+  </Folder>
+</Solution>

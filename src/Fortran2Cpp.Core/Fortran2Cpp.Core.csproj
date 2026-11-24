@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Antlr4BuildTasks" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Grammar\" />
+    <Folder Include="Ast\" />
+    <Folder Include="Diagnostics\" />
+    <Folder Include="CodeGen\" />
+    <Folder Include="Semantics\" />
+    <Folder Include="Parsing\" />
+    <Folder Include="Preprocessing\" />
+  </ItemGroup>
+
+</Project>
