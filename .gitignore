@@ -1,0 +1,29 @@
+bin/
+obj/
+TestResults/
+.vs/
+*.user
+*.suo
+
+.idea/
+
+# Antlr4BuildTasks generiše kod u obj/, ali ako se alat pokrene ručno, ostaju ovi fajlovi
+*.interp
+*.tokens
+
+out/
+build/
+cmake-build-*/
+
+*.mod
+*.smod
+*.o
+*.obj
+*.exe
+a.out
+
+# .verified.* fajlovi se commit-uju, .received.* nastaju samo kad test padne
+*.received.*
+
+.DS_Store
+Thumbs.db
