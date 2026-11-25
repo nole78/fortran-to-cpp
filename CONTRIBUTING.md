@@ -135,3 +135,10 @@ Svaka važna tehnička odluka ide u `docs/odluke.md`, uz datum, šta je odlučen
 - Greške se ne bacaju kao izuzeci, nego se upisuju u `DiagnosticBag`. Izuzetak je samo za greške u samom alatu.
 - Šifre dijagnostika su stabilne (npr. `F2C1001`) i navode se u `docs/analiza.md`.
 - Za obilazak AST-a se jednom odlučuje između visitora i `switch` pattern matching-a. Odluka ide u `odluke.md`.
+
+### Testovi
+
+- Framework je xUnit (`[Fact]`, `[Theory]`), uz Shouldly za provere i Verify za snapshot testove.
+- Jedna test klasa po klasi koja se testira (`DiagnosticBag` → `DiagnosticBagTests`), u folderu koji prati `src/` (`Semantics/`, `CodeGen/`...).
+- Ime testa ima oblik `Akcija_Uslov_OčekivaniRezultat`, na engleskom i bez dijakritika, npr. `CanGenerate_UnsupportedDiagnostic_ShouldBeFalse` ili `EmitDoLoop_NegativeStep_ShouldCountDown`.
+- Telo testa je podeljeno komentarima `// Arrange`, `// Act`, `// Assert`.
