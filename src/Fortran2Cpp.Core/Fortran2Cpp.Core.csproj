@@ -21,4 +21,12 @@
     <Folder Include="Preprocessing\" />
   </ItemGroup>
 
+  <ItemGroup>
+	  <Antlr4 Include="Grammar\Fortran.g4">
+		  <Package>Fortran2Cpp.Core.Grammar</Package>
+		  <Visitor>true</Visitor>
+		  <Listener>false</Listener>
+	  </Antlr4>
+  </ItemGroup>
+
 </Project>
