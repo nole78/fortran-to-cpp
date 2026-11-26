@@ -2,13 +2,35 @@ grammar Fortran;
 
 options { caseInsensitive = true; }
 
-programUnit : mainProgram ;
+programUnit 
+    : mainProgram 
+    | subroutineDef
+    | functionDef
+    ;
 
 //Program
 
-mainProgram : (PROGRAM ID eos)? specPart execPart endProgram ;
+mainProgram : (PROGRAM ID eos)? specPart execPart containsPart? endProgram ;
 
 endProgram : (END_PROGRAM | END) ID? eos ; 
+
+containsPart : CONTAINS eos (subroutineDef | functionDef)* ;
+
+subroutineDef
+    : SUBROUTINE ID ('(' paramList? ')')? eos
+      specPart execPart
+      (END_SUBROUTINE | END) ID? eos
+    ;
+
+functionDef
+    : typeSpec? FUNCTION ID '(' paramList? ')' resultClause? eos
+      specPart execPart
+      (END_FUNCTION | END) ID? eos
+    ;
+
+paramList : ID (',' ID)* ;
+
+resultClause : ID '(' ID ')' ;
 
 //Declarations
 specPart : implicitStmt? declaration* ;
@@ -157,6 +179,11 @@ eqvOp: EQV | NEQV ;
 //Key words
 PROGRAM : 'program';
 END_PROGRAM      : 'end' [ \t]* 'program' ;
+SUBROUTINE       : 'subroutine' ;
+END_SUBROUTINE   : 'end' [ \t]* 'subroutine' ;
+FUNCTION         : 'function' ;
+END_FUNCTION     : 'end' [ \t]* 'function' ;
+CONTAINS         : 'contains' ;
 IMPLICIT_NONE    : 'implicit' [ \t]+ 'none' ;
 
 INTEGER   : 'integer' ;
