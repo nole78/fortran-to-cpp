@@ -2,8 +2,55 @@ grammar Fortran;
 
 options { caseInsensitive = true; }
 
-programUnit : expr EOL* EOF ;
+programUnit : mainProgram ;
 
+//Program
+
+mainProgram : (PROGRAM ID eos)? specPart endProgram ;
+
+endProgram : (END_PROGRAM | END) ID? eos ; 
+
+//Declarations
+specPart : implicitStmt? declaration* ;
+
+implicitStmt : IMPLICIT_NONE eos ;
+
+declaration : typeSpec (',' attr)* '::'? entityDecl (',' entityDecl)* eos ;
+
+typeSpec 
+     : INTEGER kindSelector?
+     | REAL kindSelector?
+     | DOUBLE_PRECISION
+     | LOGICAL kindSelector?
+     | CHARACTER kindSelector?
+     ;
+
+kindSelector : '(' typeParam (',' typeParam)* ')' ;
+
+typeParam : (ID '=')? (expr | '*') ;
+
+attr
+    : PARAMETER
+    | INTENT '(' ID ID? ')'
+    | DIMENSION '(' dimSpec (',' dimSpec)* ')'
+    | ID
+    ;
+
+entityDecl
+    : ID ('(' dimSpec (',' dimSpec)* ')')? ('=' expr)?
+    ;
+
+dimSpec
+    : expr ':' expr
+    | expr ':'
+    | expr
+    | ':'
+    | '*'
+    ;
+
+eos : EOL+ ;
+
+//Expressions
 expr 
      : '(' expr ')'
      | <assoc=right> expr '**' expr
@@ -41,11 +88,20 @@ relOp : EQ | NE | LT | LE | GT | GE ;
 eqvOp: EQV | NEQV ;
 
 //Key words
+PROGRAM : 'program';
+END_PROGRAM      : 'end' [ \t]* 'program' ;
+END              : 'end' ;
+IMPLICIT_NONE    : 'implicit' [ \t]+ 'none' ;
+
 INTEGER   : 'integer' ;
 REAL      : 'real' ;
 LOGICAL   : 'logical' ;
 CHARACTER : 'character' ;
 DOUBLE_PRECISION : 'double' [ \t]+ 'precision' ;
+PARAMETER        : 'parameter' ;
+DIMENSION        : 'dimension' ;
+INTENT           : 'intent' ;
+
 
 //Literals
 INT_LIT   : [0-9]+ KIND? ;

@@ -15,7 +15,7 @@ public class ExpressionTests
         var lexer = new FortranLexer(new AntlrInputStream(input));
         var parser = new FortranParser(new CommonTokenStream(lexer));
 
-        var tree = parser.programUnit();
+        var tree = parser.expr();
         var treeText = tree.ToStringTree(parser);
         _out.WriteLine(treeText);
         return treeText;
@@ -102,6 +102,6 @@ public class ExpressionTests
         Assert.Contains("(callName mat)", treeText);
         Assert.Contains("(subscript (expr 1))", treeText);
         Assert.Contains("(subscript (expr 2) : (expr 5))", treeText);
-        Assert.Contains("(subscript : : (expr 2))", treeText);
+        Assert.Contains("(subscript :: (expr 2))", treeText);
     }
 }
