@@ -11,12 +11,9 @@ public class AntlrSmokeTests
     [Fact]
     public void Parses_expression_with_precedence()
     {
-        var lexer  = new FortranLexer(new AntlrInputStream("2 + 3 * 4"));
-        var parser = new FortranParser(new CommonTokenStream(lexer));
+        var text = TestParser.ParseToString("2 + 3 * 4", p => p.expr());
+        _out.WriteLine(text);
 
-        var tree = parser.expr();
-        _out.WriteLine(tree.ToStringTree(parser));
-
-        Assert.Contains("(expr (expr 2) (addOp +) (expr (expr 3) (mulOp *) (expr 4)))", tree.ToStringTree(parser));
+        Assert.Contains("(expr (expr 2) (addOp +) (expr (expr 3) (mulOp *) (expr 4)))", text);
     }
 }

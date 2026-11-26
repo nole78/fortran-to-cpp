@@ -10,21 +10,10 @@ public class ExecPartTests
     private readonly ITestOutputHelper _out;
     public ExecPartTests(ITestOutputHelper output) => _out = output;
 
-    private string ParseTree(string input)
-    {
-        var lexer = new FortranLexer(new AntlrInputStream(input.Replace("\r\n", "\n")));
-        var parser = new FortranParser(new CommonTokenStream(lexer));
-
-        var tree = parser.programUnit();
-        var treeText = tree.ToStringTree(parser);
-        _out.WriteLine(treeText);
-        return treeText;
-    }
-
     [Fact]
     public void Parses_assignment_stmt()
     {
-        var treeText = ParseTree("x = 1 + 2\nend\n");
+        var treeText = TestParser.ParseToString("x = 1 + 2\nend\n", p => p.programUnit());
 
         Assert.Contains("(assignmentStmt", treeText);
     }
@@ -32,7 +21,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_call_stmt()
     {
-        var treeText = ParseTree("call compute(a, b)\nend\n");
+        var treeText = TestParser.ParseToString("call compute(a, b)\nend\n", p => p.programUnit());
 
         Assert.Contains("(callStmt", treeText);
         Assert.Contains("compute", treeText);
@@ -41,7 +30,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_print_stmt()
     {
-        var treeText = ParseTree("print *, x, y\nend\n");
+        var treeText = TestParser.ParseToString("print *, x, y\nend\n", p => p.programUnit());
 
         Assert.Contains("(printStmt", treeText);
     }
@@ -49,7 +38,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_read_stmt()
     {
-        var treeText = ParseTree("read(*, *) x\nend\n");
+        var treeText = TestParser.ParseToString("read(*, *) x\nend\n", p => p.programUnit());
 
         Assert.Contains("(readStmt", treeText);
     }
@@ -57,7 +46,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_write_stmt()
     {
-        var treeText = ParseTree("write(*, *) 'ok'\nend\n");
+        var treeText = TestParser.ParseToString("write(*, *) 'ok'\nend\n", p => p.programUnit());
 
         Assert.Contains("(writeStmt", treeText);
     }
@@ -65,7 +54,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_exit_stmt()
     {
-        var treeText = ParseTree("exit loop1\nend\n");
+        var treeText = TestParser.ParseToString("exit loop1\nend\n", p => p.programUnit());
 
         Assert.Contains("(exitStmt", treeText);
     }
@@ -73,7 +62,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_cycle_stmt()
     {
-        var treeText = ParseTree("cycle loop1\nend\n");
+        var treeText = TestParser.ParseToString("cycle loop1\nend\n", p => p.programUnit());
 
         Assert.Contains("(cycleStmt", treeText);
     }
@@ -81,7 +70,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_stop_stmt()
     {
-        var treeText = ParseTree("stop\nend\n");
+        var treeText = TestParser.ParseToString("stop\nend\n", p => p.programUnit());
 
         Assert.Contains("(stopStmt", treeText);
     }
@@ -89,7 +78,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_return_stmt()
     {
-        var treeText = ParseTree("return\nend\n");
+        var treeText = TestParser.ParseToString("return\nend\n", p => p.programUnit());
 
         Assert.Contains("(returnStmt", treeText);
     }
@@ -97,7 +86,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_continue_stmt()
     {
-        var treeText = ParseTree("continue\nend\n");
+        var treeText = TestParser.ParseToString("continue\nend\n", p => p.programUnit());
 
         Assert.Contains("(continueStmt", treeText);
     }
@@ -117,7 +106,7 @@ public class ExecPartTests
 
             """;
 
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.programUnit());
 
         Assert.Contains("(ifConstruct", treeText);
         Assert.Contains("else if", treeText, StringComparison.OrdinalIgnoreCase);
@@ -127,7 +116,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_single_line_logical_if()
     {
-        var treeText = ParseTree("if (flag) x = 42\nend\n");
+        var treeText = TestParser.ParseToString("if (flag) x = 42\nend\n", p => p.programUnit());
 
         Assert.Contains("(logicalIfStmt", treeText);
         Assert.Contains("(assignmentStmt", treeText);
@@ -144,7 +133,7 @@ public class ExecPartTests
 
             """;
 
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.programUnit());
 
         Assert.Contains("(doConstruct", treeText);
     }
@@ -160,7 +149,7 @@ public class ExecPartTests
 
             """;
 
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.programUnit());
 
         Assert.Contains("(assignmentStmt", treeText);
         Assert.Contains("(expr 3)", treeText);
@@ -169,7 +158,7 @@ public class ExecPartTests
     [Fact]
     public void Parses_goto_as_unsupported_stmt()
     {
-        var treeText = ParseTree("goto 100\nend\n");
+        var treeText = TestParser.ParseToString("goto 100\nend\n", p => p.programUnit());
 
         Assert.Contains("(unsupportedStmt", treeText);
     }

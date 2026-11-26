@@ -10,17 +10,6 @@ public class LiteralAndLexerTests
     private readonly ITestOutputHelper _out;
     public LiteralAndLexerTests(ITestOutputHelper output) => _out = output;
 
-    private string ParseTree(string input)
-    {
-        var lexer = new FortranLexer(new AntlrInputStream(input));
-        var parser = new FortranParser(new CommonTokenStream(lexer));
-
-        var tree = parser.expr();
-        var treeText = tree.ToStringTree(parser);
-        _out.WriteLine(treeText);
-        return treeText;
-    }
-
     [Theory]
     [InlineData("1.0_wp")]
     [InlineData(".5_wp")]
@@ -29,7 +18,7 @@ public class LiteralAndLexerTests
     [InlineData("42_int64")]
     public void Parses_numeric_literals_with_kind_and_exponent(string literal)
     {
-        var treeText = ParseTree(literal);
+        var treeText = TestParser.ParseToString(literal, p => p.expr());
 
         Assert.Contains(literal, treeText);
     }
@@ -39,7 +28,7 @@ public class LiteralAndLexerTests
     {
         const string code = "'say ''hi''' // &\n  & 'ok' ! komentar\n\n";
 
-        var treeText = ParseTree(code);
+        var treeText = TestParser.ParseToString(code, p => p.expr());
 
         Assert.Contains("//", treeText);
     }
@@ -49,7 +38,7 @@ public class LiteralAndLexerTests
     [InlineData("x + 1\r\n;")]
     public void Accepts_trailing_eol_tokens(string input)
     {
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.expr());
 
         Assert.Contains("x", treeText);
     }

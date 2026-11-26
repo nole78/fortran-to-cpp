@@ -1,5 +1,7 @@
 using Antlr4.Runtime;
 using Fortran2Cpp.Core.Grammar;
+using Fortran2Cpp.Core.Diagnostics;
+using Fortran2Cpp.Tests.Parsing;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,21 +12,10 @@ public class DeclarationTests
     private readonly ITestOutputHelper _out;
     public DeclarationTests(ITestOutputHelper output) => _out = output;
 
-    private string ParseTree(string input)
-    {
-        var lexer = new FortranLexer(new AntlrInputStream(input));
-        var parser = new FortranParser(new CommonTokenStream(lexer));
-
-        var tree = parser.programUnit();
-        var treeText = tree.ToStringTree(parser);
-        _out.WriteLine(treeText);
-        return treeText;
-    }
-
     [Fact]
     public void Parses_minimal_program()
     {
-        var treeText = ParseTree("end\n");
+        var treeText = TestParser.ParseToString("end\n", p => p.programUnit());
 
         Assert.Contains("(mainProgram", treeText);
         Assert.Contains("(endProgram", treeText);
@@ -34,7 +25,7 @@ public class DeclarationTests
     public void Parses_named_program_with_declarations()
     {
         var input = "program demo\nimplicit none\ninteger :: i, n = 10\nreal(8), parameter :: pi = 3.14159_8\nend program demo\n";
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.programUnit());
 
         Assert.Contains("(implicitStmt", treeText);
         Assert.Contains("(declaration", treeText);
@@ -48,7 +39,7 @@ public class DeclarationTests
     [InlineData("character(len=*) :: msg\nend\n", "(typeParam len = *)")]
     public void Parses_type_params(string input, string expectedFragment)
     {
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.programUnit());
 
         Assert.Contains(expectedFragment, treeText);
     }
@@ -59,7 +50,7 @@ public class DeclarationTests
     [InlineData("real, dimension(:) :: slice\nend\n")]
     public void Parses_attributes_and_dimensions(string input)
     {
-        var treeText = ParseTree(input);
+        var treeText = TestParser.ParseToString(input, p => p.programUnit());
 
         Assert.Contains("(attr", treeText);
         Assert.Contains("(dimSpec", treeText);
@@ -68,7 +59,7 @@ public class DeclarationTests
     [Fact]
     public void Parses_declaration_without_double_colon()
     {
-        var treeText = ParseTree("integer a, b(3)\nend\n");
+        var treeText = TestParser.ParseToString("integer a, b(3)\nend\n", p => p.programUnit());
 
         Assert.Contains("(entityDecl a)", treeText);
         Assert.Contains("(entityDecl b ( (dimSpec (expr 3)) ))", treeText);

@@ -160,6 +160,8 @@ expr
      | REAL_LIT
      | STRING_LIT
      | LOGICAL_LIT
+     | '[' exprList ']'
+     | '(/' exprList '/)'
      ;
 
 callName

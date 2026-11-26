@@ -27,4 +27,30 @@ public static class TestParser
 
         return rule(parser);
     }
+
+    public static string ParseToString(
+        string text,
+        Func<FortranParser, IParseTree> rule,
+        string file = "<test>")
+    {
+        if (!text.EndsWith('\n')) text += "\n";
+
+        var diag = new DiagnosticBag();
+        var listener = new SyntaxErrorListener(diag, file);
+
+        var lexer = new FortranLexer(new AntlrInputStream(text));
+        lexer.RemoveErrorListeners();
+        lexer.AddErrorListener(listener);
+
+        var parser = new FortranParser(new CommonTokenStream(lexer));
+        parser.RemoveErrorListeners();
+        parser.AddErrorListener(listener);
+
+        var tree = rule(parser);
+
+        Assert.True(diag.Count == 0,
+            string.Join(Environment.NewLine, diag.Select(d => d.ToString())));
+
+        return Trees.ToStringTree(tree, parser);
+    }
 }
