@@ -14,7 +14,7 @@ public class AntlrSmokeTests
         var lexer  = new FortranLexer(new AntlrInputStream("2 + 3 * 4"));
         var parser = new FortranParser(new CommonTokenStream(lexer));
 
-        var tree = parser.prog();
+        var tree = parser.programUnit();
         _out.WriteLine(tree.ToStringTree(parser));
 
         Assert.Contains("(expr (expr 3) * (expr 4))", tree.ToStringTree(parser));

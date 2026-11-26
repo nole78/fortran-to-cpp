@@ -1,8 +1,11 @@
 grammar Fortran;
 
-prog : expr EOF ;
+programUnit 
+     : expr EOF 
+     ;
 
-expr : expr '*' expr
+expr 
+     : expr '*' expr
      | expr '+' expr
      | INT
      ;
