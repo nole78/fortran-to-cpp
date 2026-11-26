@@ -6,7 +6,7 @@ programUnit : mainProgram ;
 
 //Program
 
-mainProgram : (PROGRAM ID eos)? specPart endProgram ;
+mainProgram : (PROGRAM ID eos)? specPart execPart endProgram ;
 
 endProgram : (END_PROGRAM | END) ID? eos ; 
 
@@ -31,7 +31,7 @@ typeParam : (ID '=')? (expr | '*') ;
 
 attr
     : PARAMETER
-    | INTENT '(' ID ID? ')'
+    | INTENT '(' ID ')'
     | DIMENSION '(' dimSpec (',' dimSpec)* ')'
     | ID
     ;
@@ -41,12 +41,79 @@ entityDecl
     ;
 
 dimSpec
-    : expr ':' expr
+    : expr ':' ( expr | '*' )
     | expr ':'
     | expr
     | ':'
     | '*'
     ;
+
+//Statements
+execPart : block ;
+
+block : stmt* ;
+
+stmt
+    : actionStmt
+    | ifConstruct
+    | logicalIfStmt
+    | doWhileConstruct
+    | doConstruct
+    | doInfiniteConstruct
+    | unsupportedStmt
+    ;
+
+actionStmt
+    : assignmentStmt
+    | callStmt
+    | printStmt
+    | readStmt
+    | writeStmt
+    | exitStmt
+    | cycleStmt
+    | stopStmt
+    | returnStmt
+    | continueStmt
+    ;
+
+assignmentStmt : expr '=' expr eos ;
+
+callStmt : CALL ID ('(' (expr (',' expr)*)? ')')? eos ;
+
+printStmt : PRINT ioFormat (',' exprList)? eos ;
+
+readStmt : READ ioFormat (',' exprList)? eos | READ '(' ioUnit ',' ioFormat ')' exprList? eos ;
+
+writeStmt : WRITE '(' ioUnit ',' ioFormat ')' exprList? eos ;
+
+ioUnit : '*' | expr ;
+
+ioFormat : '*' | STRING_LIT ;
+
+exitStmt     : EXIT ID? eos ;
+cycleStmt    : CYCLE ID? eos ;
+stopStmt     : STOP eos ;
+returnStmt   : RETURN eos ;
+continueStmt : CONTINUE eos ;
+
+logicalIfStmt : IF '(' expr ')' actionStmt ;
+
+ifConstruct
+    : IF '(' expr ')' THEN eos block
+      (ELSE_IF '(' expr ')' THEN eos block)*
+      (ELSE eos block)?
+      END_IF eos
+    ;
+
+doWhileConstruct : DO WHILE '(' expr ')' eos block END_DO eos ;
+
+doConstruct : DO ID '=' expr ',' expr (',' expr)? eos block END_DO eos ;
+
+doInfiniteConstruct : DO eos block END_DO eos ;
+
+unsupportedStmt : (ID | INT_LIT) ~EOL* eos ;
+
+exprList : expr (',' expr)* ;
 
 eos : EOL+ ;
 
@@ -90,7 +157,6 @@ eqvOp: EQV | NEQV ;
 //Key words
 PROGRAM : 'program';
 END_PROGRAM      : 'end' [ \t]* 'program' ;
-END              : 'end' ;
 IMPLICIT_NONE    : 'implicit' [ \t]+ 'none' ;
 
 INTEGER   : 'integer' ;
@@ -102,6 +168,24 @@ PARAMETER        : 'parameter' ;
 DIMENSION        : 'dimension' ;
 INTENT           : 'intent' ;
 
+IF               : 'if' ;
+THEN             : 'then' ;
+ELSE_IF          : 'else' [ \t]* 'if' ;
+ELSE             : 'else' ;
+END_IF           : 'end' [ \t]* 'if' ;
+DO               : 'do' ;
+WHILE            : 'while' ;
+END_DO           : 'end' [ \t]* 'do' ;
+CALL             : 'call' ;
+PRINT            : 'print' ;
+READ             : 'read' ;
+WRITE            : 'write' ;
+EXIT             : 'exit' ;
+CYCLE            : 'cycle' ;
+STOP             : 'stop' ;
+RETURN           : 'return' ;
+CONTINUE         : 'continue' ;
+END              : 'end' ;
 
 //Literals
 INT_LIT   : [0-9]+ KIND? ;
