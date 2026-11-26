@@ -87,7 +87,7 @@ public class ExpressionTests
     [InlineData("ARR(I + 1, J)")]
     public void Parses_uppercase_expressions(string input)
     {
-        var treeText = TestParser.ParseToString(input, p => p.expr());
+        var treeText = TestParser.ParseToString(input, p => p.exprOnly());
 
         Assert.False(string.IsNullOrWhiteSpace(treeText));
         Assert.Contains("(expr", treeText);

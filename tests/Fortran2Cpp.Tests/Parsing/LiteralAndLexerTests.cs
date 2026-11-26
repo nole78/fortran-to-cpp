@@ -18,7 +18,7 @@ public class LiteralAndLexerTests
     [InlineData("42_int64")]
     public void Parses_numeric_literals_with_kind_and_exponent(string literal)
     {
-        var treeText = TestParser.ParseToString(literal, p => p.expr());
+        var treeText = TestParser.ParseToString(literal, p => p.exprOnly());
 
         Assert.Contains(literal, treeText);
     }
@@ -28,7 +28,7 @@ public class LiteralAndLexerTests
     {
         const string code = "'say ''hi''' // &\n  & 'ok' ! komentar\n\n";
 
-        var treeText = TestParser.ParseToString(code, p => p.expr());
+        var treeText = TestParser.ParseToString(code, p => p.exprOnly());
 
         Assert.Contains("//", treeText);
     }
@@ -38,7 +38,7 @@ public class LiteralAndLexerTests
     [InlineData("x + 1\r\n;")]
     public void Accepts_trailing_eol_tokens(string input)
     {
-        var treeText = TestParser.ParseToString(input, p => p.expr());
+        var treeText = TestParser.ParseToString(input, p => p.exprOnly());
 
         Assert.Contains("x", treeText);
     }
