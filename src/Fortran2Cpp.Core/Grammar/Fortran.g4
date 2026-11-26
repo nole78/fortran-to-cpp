@@ -2,6 +2,8 @@ grammar Fortran;
 
 options { caseInsensitive = true; }
 
+compilationUnit : EOL* programUnit+ EOF ;
+
 programUnit 
     : mainProgram 
     | subroutineDef
@@ -114,7 +116,7 @@ ioFormat : '*' | STRING_LIT ;
 
 exitStmt     : EXIT ID? eos ;
 cycleStmt    : CYCLE ID? eos ;
-stopStmt     : STOP eos ;
+stopStmt     : STOP ( INT_LIT | STRING_LIT)? eos ;
 returnStmt   : RETURN eos ;
 continueStmt : CONTINUE eos ;
 
