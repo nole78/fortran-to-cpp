@@ -16,12 +16,23 @@ expr
      | expr AND expr
      | expr OR expr
      | expr eqvOp expr
+     | callName '(' (subscript (',' subscript)*)? ')'
      | ID
      | INT_LIT
      | REAL_LIT
      | STRING_LIT
      | LOGICAL_LIT
      ;
+
+callName
+    : ID
+    | REAL
+    ;
+
+subscript
+    : expr
+    | expr? ':' expr? (':' expr)?
+    ;
 
 //Operators
 mulOp : '*' | '/' ;

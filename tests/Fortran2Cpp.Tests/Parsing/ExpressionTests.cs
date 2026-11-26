@@ -49,4 +49,59 @@ public class ExpressionTests
 
         Assert.Contains(expectedFragment, treeText);
     }
+
+    [Fact]
+    public void Parses_empty_call_with_identifier()
+    {
+        var treeText = ParseTree("foo()");
+
+        Assert.Contains("(callName foo)", treeText);
+    }
+
+    [Fact]
+    public void Parses_call_with_real_keyword_as_callName()
+    {
+        var treeText = ParseTree("real(x)");
+
+        Assert.Contains("(callName real)", treeText);
+        Assert.Contains("(subscript (expr x))", treeText);
+    }
+
+    [Fact]
+    public void Parses_multiple_subscripts_and_expressions()
+    {
+        var treeText = ParseTree("arr(i + 1, j * 2)");
+
+        Assert.Contains("(callName arr)", treeText);
+        Assert.Contains("(subscript (expr (expr i) (addOp +) (expr 1)))", treeText);
+        Assert.Contains("(subscript (expr (expr j) (mulOp *) (expr 2)))", treeText);
+    }
+
+    [Theory]
+    [InlineData("a(:)")]
+    [InlineData("a(1:10)")]
+    [InlineData("a(:10)")]
+    [InlineData("a(1:)")]
+    [InlineData("a(1:10:2)")]
+    [InlineData("a(::2)")]
+    [InlineData("a(1::2)")]
+    [InlineData("a(:10:2)")]
+    public void Parses_subscript_ranges_and_strides(string input)
+    {
+        var treeText = ParseTree(input);
+
+        Assert.Contains("(subscript", treeText);
+        Assert.Contains(":", treeText);
+    }
+
+    [Fact]
+    public void Parses_combined_scalar_and_slice_subscripts()
+    {
+        var treeText = ParseTree("mat(1, 2:5, ::2)");
+
+        Assert.Contains("(callName mat)", treeText);
+        Assert.Contains("(subscript (expr 1))", treeText);
+        Assert.Contains("(subscript (expr 2) : (expr 5))", treeText);
+        Assert.Contains("(subscript : : (expr 2))", treeText);
+    }
 }
