@@ -11,7 +11,7 @@ public class SyntaxErrorListenerTests
     public void Reports_line_and_column_of_syntax_error()
     {
         var diag = new DiagnosticBag();
-        TestParser.Parse("2 + * 3", diag , p => p.expr());
+        TestParser.Parse("2 + * 3", diag , p => p.exprOnly());
 
         var error = Assert.Single(diag);
         Assert.Equal(DiagnosticCodes.SyntaxError, error.Code);

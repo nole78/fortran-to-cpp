@@ -11,7 +11,7 @@ public class AntlrSmokeTests
     [Fact]
     public void Parses_expression_with_precedence()
     {
-        var text = TestParser.ParseToString("2 + 3 * 4", p => p.expr());
+        var text = TestParser.ParseToString("2 + 3 * 4", p => p.exprOnly());
         _out.WriteLine(text);
 
         Assert.Contains("(expr (expr 2) (addOp +) (expr (expr 3) (mulOp *) (expr 4)))", text);

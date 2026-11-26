@@ -55,7 +55,7 @@ typeParam : (ID '=')? (expr | '*') ;
 
 attr
     : PARAMETER
-    | INTENT '(' ID ')'
+    | INTENT '(' ID ID? ')'
     | DIMENSION '(' dimSpec (',' dimSpec)* ')'
     | ID
     ;
@@ -142,6 +142,8 @@ exprList : expr (',' expr)* ;
 eos : EOL+ ;
 
 //Expressions
+exprOnly : expr EOL* EOF ;
+
 expr 
      : '(' expr ')'
      | <assoc=right> expr '**' expr
