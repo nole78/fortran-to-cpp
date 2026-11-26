@@ -145,25 +145,25 @@ eos : EOL+ ;
 exprOnly : expr EOL* EOF ;
 
 expr 
-     : '(' expr ')'
-     | <assoc=right> expr '**' expr
-     | expr mulOp expr
-     | addOp expr
-     | expr addOp expr
-     | expr '//' expr
-     | expr relOp expr
-     | NOT expr
-     | expr AND expr
-     | expr OR expr
-     | expr eqvOp expr
-     | callName '(' (subscript (',' subscript)*)? ')'
-     | ID
-     | INT_LIT
-     | REAL_LIT
-     | STRING_LIT
-     | LOGICAL_LIT
-     | '[' exprList ']'
-     | '(/' exprList '/)'
+     : '(' expr ')'                                     #Paren
+     | <assoc=right> expr '**' expr                     #Power
+     | expr mulOp expr                                  #MulDiv
+     | addOp expr                                       #Unary
+     | expr addOp expr                                  #AddSub
+     | expr '//' expr                                   #Concat
+     | expr relOp expr                                  #Relational
+     | NOT expr                                         #Not
+     | expr AND expr                                    #And
+     | expr OR expr                                     #Or
+     | expr eqvOp expr                                  #Eqv
+     | callName '(' (subscript (',' subscript)*)? ')'   #NameOrCall
+     | ID                                               #Variable
+     | INT_LIT                                          #IntLit
+     | REAL_LIT                                         #RealLit
+     | STRING_LIT                                       #StringLit
+     | LOGICAL_LIT                                      #LogicalLit
+     | '[' exprList ']'                                 #ArrayConstructor
+     | '(/' exprList '/)'                               #ArrayConstructor2
      ;
 
 callName
