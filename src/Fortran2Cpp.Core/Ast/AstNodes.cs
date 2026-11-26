@@ -251,6 +251,10 @@ public sealed record BinaryExpr(BinaryOp Op, Expr Left, Expr Right, SourceSpan S
 /// </summary>
 public sealed record ParenExpr(Expr Inner, SourceSpan Span) : Expr(Span);
 
+public sealed record RangeExpr(Expr? Lower, Expr? Upper, Expr? Step, SourceSpan Span) : Expr(Span);
+
+public sealed record ArrayConstructor(ImmutableArray<Expr> Items, SourceSpan Span) : Expr(Span);
+
 public enum UnaryOp
 {
     Plus,
