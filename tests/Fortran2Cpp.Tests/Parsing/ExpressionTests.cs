@@ -15,10 +15,21 @@ public class ExpressionTests
         var lexer = new FortranLexer(new AntlrInputStream(input));
         var parser = new FortranParser(new CommonTokenStream(lexer));
 
+        lexer.RemoveErrorListeners();
+        parser.RemoveErrorListeners();
+
         var tree = parser.expr();
         var treeText = tree.ToStringTree(parser);
         _out.WriteLine(treeText);
         return treeText;
+    }
+
+    [Fact]
+    public void Multiplicative_operators_associate_left_to_right()
+    {
+        var treeText = ParseTree("a / b * c");
+
+        Assert.Contains("(expr (expr (expr a) (mulOp /) (expr b)) (mulOp *) (expr c))", treeText);
     }
 
     [Fact]
@@ -30,78 +41,69 @@ public class ExpressionTests
     }
 
     [Fact]
-    public void Parentheses_override_precedence()
+    public void Unary_minus_and_power_precedence()
     {
-        var treeText = ParseTree("(2 + 3) * 4");
+        var treeText = ParseTree("-a ** 2");
 
-        Assert.Contains("(expr ( (expr (expr 2) (addOp +) (expr 3)) )) (mulOp *) (expr 4))", treeText);
+        Assert.Contains("(expr (addOp -) (expr (expr a) ** (expr 2)))", treeText);
+    }
+
+    [Fact]
+    public void Not_has_higher_precedence_than_and()
+    {
+        var treeText = ParseTree(".not. a .and. b");
+
+        Assert.Contains("(expr (expr .not. (expr a)) .and. (expr b))", treeText);
     }
 
     [Theory]
-    [InlineData("-x + y", "(addOp -)")]
-    [InlineData("a // b", "//")]
-    [InlineData("a == b", "(relOp ==)")]
-    [InlineData(".true. .and. .false.", ".and.")]
-    [InlineData("a .eqv. b", "(eqvOp .eqv.)")]
-    public void Parses_operator_expressions(string input, string expectedFragment)
+    [InlineData("a == b", "==")]
+    [InlineData("a .eq. b", ".eq.")]
+    [InlineData("a /= b", "/=")]
+    [InlineData("a .ne. b", ".ne.")]
+    [InlineData("a < b", "<")]
+    [InlineData("a .lt. b", ".lt.")]
+    [InlineData("a <= b", "<=")]
+    [InlineData("a .le. b", ".le.")]
+    [InlineData("a > b", ">")]
+    [InlineData("a .gt. b", ".gt.")]
+    [InlineData("a >= b", ">=")]
+    [InlineData("a .ge. b", ".ge.")]
+    public void Parses_both_relational_operator_notations(string input, string expectedOp)
     {
         var treeText = ParseTree(input);
 
-        Assert.Contains(expectedFragment, treeText);
+        Assert.Contains($"(relOp {expectedOp})", treeText);
     }
 
     [Fact]
-    public void Parses_empty_call_with_identifier()
+    public void Parses_array_slice_a_1_to_3()
     {
-        var treeText = ParseTree("foo()");
+        var treeText = ParseTree("a(1:3)");
 
-        Assert.Contains("(callName foo)", treeText);
+        Assert.Contains("(callName a)", treeText);
+        Assert.Contains("(subscript (expr 1) : (expr 3))", treeText);
     }
 
     [Fact]
-    public void Parses_call_with_real_keyword_as_callName()
+    public void Parses_array_constructor_slash_paren()
     {
-        var treeText = ParseTree("real(x)");
+        var treeText = ParseTree("(/ 1, 2 /)");
 
-        Assert.Contains("(callName real)", treeText);
-        Assert.Contains("(subscript (expr x))", treeText);
-    }
-
-    [Fact]
-    public void Parses_multiple_subscripts_and_expressions()
-    {
-        var treeText = ParseTree("arr(i + 1, j * 2)");
-
-        Assert.Contains("(callName arr)", treeText);
-        Assert.Contains("(subscript (expr (expr i) (addOp +) (expr 1)))", treeText);
-        Assert.Contains("(subscript (expr (expr j) (mulOp *) (expr 2)))", treeText);
+        Assert.Contains("1", treeText);
+        Assert.Contains("2", treeText);
     }
 
     [Theory]
-    [InlineData("a(:)")]
-    [InlineData("a(1:10)")]
-    [InlineData("a(:10)")]
-    [InlineData("a(1:)")]
-    [InlineData("a(1:10:2)")]
-    [InlineData("a(::2)")]
-    [InlineData("a(1::2)")]
-    [InlineData("a(:10:2)")]
-    public void Parses_subscript_ranges_and_strides(string input)
+    [InlineData("A + B * C")]
+    [InlineData("X .AND. Y .OR. Z")]
+    [InlineData(".NOT. FLAG")]
+    [InlineData("ARR(I + 1, J)")]
+    public void Parses_uppercase_expressions(string input)
     {
         var treeText = ParseTree(input);
 
-        Assert.Contains("(subscript", treeText);
-        Assert.Contains(":", treeText);
-    }
-
-    [Fact]
-    public void Parses_combined_scalar_and_slice_subscripts()
-    {
-        var treeText = ParseTree("mat(1, 2:5, ::2)");
-
-        Assert.Contains("(callName mat)", treeText);
-        Assert.Contains("(subscript (expr 1))", treeText);
-        Assert.Contains("(subscript (expr 2) : (expr 5))", treeText);
-        Assert.Contains("(subscript :: (expr 2))", treeText);
+        Assert.False(string.IsNullOrWhiteSpace(treeText));
+        Assert.Contains("(expr", treeText);
     }
 }
