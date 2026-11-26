@@ -15,7 +15,7 @@ public class LiteralAndLexerTests
         var lexer = new FortranLexer(new AntlrInputStream(input));
         var parser = new FortranParser(new CommonTokenStream(lexer));
 
-        var tree = parser.programUnit();
+        var tree = parser.expr();
         var treeText = tree.ToStringTree(parser);
         _out.WriteLine(treeText);
         return treeText;

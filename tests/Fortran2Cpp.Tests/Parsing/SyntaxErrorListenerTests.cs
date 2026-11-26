@@ -34,6 +34,6 @@ public class SyntaxErrorListenerTests
         parser.RemoveErrorListeners();
         parser.AddErrorListener(listener);
 
-        _ = parser.programUnit();
+        _ = parser.expr();
     }
 }
