@@ -75,3 +75,11 @@ dotnet test --filter "FullyQualifiedName~CodeGen"
 ```
 
 Pre kraja pokreni testove i u izveštaju navedi: koje testove si dodao, koji prolaze, koji padaju i zašto (npr. "pada jer `ExprEmitter` još ne postoji").
+
+## PR-ovi
+
+Opis PR-a prati [.github/pull_request_template.md](.github/pull_request_template.md): iste sekcije, istim redom, sve popunjene. `gh pr create --body` ne učitava template sam, pa ga popuni ručno.
+
+- Kratko i konkretno: stavke, bez uvoda i ponavljanja issue-a.
+- `Issue:` je `Closes #N`, da se issue zatvori pri merge-u.
+- `Verification:` navodi samo ono što je stvarno pokrenuto, i šta nije provereno.
