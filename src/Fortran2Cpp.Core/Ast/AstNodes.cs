@@ -122,6 +122,7 @@ public abstract record DeclAttribute(SourceSpan Span) : Node(Span);
 public sealed record ParameterAttr(SourceSpan Span) : DeclAttribute(Span);
 public sealed record IntentAttr(Intent Intent, SourceSpan Span) : DeclAttribute(Span);
 public sealed record DimensionAttr(ImmutableArray<DimSpec> Dims, SourceSpan Span) : DeclAttribute(Span);
+public sealed record GenericAttr(string Name, SourceSpan Span) : DeclAttribute(Span);
 
 public enum Intent
 {

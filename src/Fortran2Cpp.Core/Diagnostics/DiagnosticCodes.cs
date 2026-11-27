@@ -17,6 +17,7 @@ public static class DiagnosticCodes
     // 1xxx: preprocesiranje i parsiranje
     public const string SyntaxError = "F2C1001";
     public const string UnterminatedContinuation = "F2C1002";
+    public const string InvalidIntent = "F2C1003";
 
     // 2xxx: semantika
     public const string UndeclaredName = "F2C2001";        // uz IMPLICIT NONE
