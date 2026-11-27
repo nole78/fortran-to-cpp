@@ -53,4 +53,18 @@ public static class TestParser
 
         return Trees.ToStringTree(tree, parser);
     }
+
+    public static IParseTree ParseOk(
+        string text,
+        Func<FortranParser, IParseTree> rule,
+        string file = "<test>")
+    {
+        var diag = new DiagnosticBag();
+        var tree = Parse(text, diag, rule, file);
+
+        Assert.True(diag.Count == 0,
+            string.Join(Environment.NewLine, diag.Select(d => d.ToString())));
+
+        return tree;
+    }
 }

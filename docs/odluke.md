@@ -2,7 +2,7 @@
 
 Format: datum, šta je odlučeno, zašto, odbačene alternative.
 
-## 2026-11-25: Ugovor između front-end-a i back-end-a (NACRT, čeka Anjin pregled)
+## 2026-11-25: Ugovor između front-end-a i back-end-a
 
 Fajlovi: `src/Fortran2Cpp.Core/Ast/`, `Diagnostics/`, `Semantics/SemanticModel.cs`.
 
@@ -30,7 +30,19 @@ Fajlovi: `src/Fortran2Cpp.Core/Ast/`, `Diagnostics/`, `Semantics/SemanticModel.c
 
 10. **Opsezi šifara dijagnostika:** `F2C1xxx` parsiranje, `2xxx` semantika, `3xxx` nepodržano, `4xxx` CodeGen, `5xxx` verifikacija, `9xxx` interne greške (`DiagnosticCodes.cs`).
 
-### Otvorena pitanja (rešiti na pregledu)
+11. **Implicitne konverzije:** Nema čvora `ConvertExpr`. `SemanticAnalyzer` beleži tip svakog izraza, a CodeGen poredi `GetType(izraz)` sa tipom koji kontekst traži (leva strana dodele, parametar, promovisani tip operacije) i emituje `static_cast` samo kad se tipovi razlikuju. Pravila promocije su jedna funkcija `TypeRules.Promote` u Semantics, koju koriste i analizator i CodeGen.
+*Zašto:* `SemanticModel` je vezan za reference čvorova (odluka 3), pa umetanje čvorova menja AST i kvari model. C++ pri mešanju tipova u aritmetici već radi isto što i Fortran, pa je cast potreban samo pri dodeli, prosleđivanju argumenata i za literale.
+
+12. **Host association:** Faza 1 podržava samo domaćina `PROGRAM`. Promenljive glavnog programa su na nivou fajla (anonimni `namespace`), interne procedure su obične funkcije iznad `main`. `CONTAINS` u podprogramu ili funkciji prijavljuje se kao `Unsupported` (F2C3xxx). Model dobija `UnitSymbol.IsInternal => Host is not null`. Pravilo traženja imena u analizatoru: lokalno → host → implicitna tipizacija.
+*Zašto:* program nije rekurzivan i njegove promenljive imaju implicitni `SAVE`, pa globalne promenljive daju istu semantiku. Izbegavaju se lambde i redosled definicija.
+
+13. **`DO` bez kontrole:** Poseban čvor `DoInfinite`, a ne `DoWhile` sa `Condition = null`.
+
+14. **`STOP` i `RETURN`:** Oba u fazi 1. `STOP` ide kroz `fortran::stop(...)` u runtime-u i podržava `stop`, `stop <int>` i `stop 'tekst'`. `RETURN` u podprogramu je `return;`, u funkciji `return <rezultat>;`, a u glavnom programu je semantička greška (F2C2xxx).
+*Zašto:* trivijalno i često u korpusu. Verifikacija mora da poredi i kod izlaza procesa (`stop 3` vraća 3), a runtime funkcija drži to ponašanje na jednom mestu.
+
+15. **Obilazak AST-a:** `switch` pattern matching. ANTLR visitor ostaje samo za prelazak sa parse stabla na AST
+*Zašto:* sa `record`-ima je `switch` kraći od visitora, a reflection test nadoknađuje nedostatak provere potpunosti.
 
 - Da li `SemanticAnalyzer` umeće implicitne konverzije kao čvorove (npr. `ConvertExpr`), ili ih CodeGen ubacuje sam, poredeći `GetType` operanada? Nacrt pretpostavlja ovo drugo.
 - Host association (`CONTAINS` u `PROGRAM`): kako CodeGen prevodi pristup promenljivim programa iz interne procedure? To je odluka za CodeGen, ali utiče na to šta model mora da kaže (`VariableSymbol.Owner` je dovoljan za nacrt).
