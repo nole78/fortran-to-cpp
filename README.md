@@ -110,13 +110,18 @@ public sealed record DoLoop(string Var, Expr Start, Expr End, Expr? Step,
 
 ### Runtime
 
-`runtime/f2c/` je mala C++ biblioteka (samo headeri) koja se kopira uz svaki generisani projekat. Pokriva ono što Fortran ima, a C++ nema direktno:
+`runtime/f2c/` je mala C++20 biblioteka (samo headeri, bez zavisnosti) koja se kopira uz svaki generisani projekat. Generisani kod uključuje samo `f2c/runtime.hpp`. Pokriva ono što Fortran ima, a C++ nema direktno:
 
-- `f2c::Array<T, Rank>`: indeksi od 1 (ili od zadate donje granice), column-major raspored, provera granica u debug modu.
-- `f2c::print` / `f2c::read`: `PRINT *`, `WRITE(*,*)` i `READ *`, uz logičke vrednosti kao `T`/`F`.
-- `f2c::ipow`: `**` sa celim brojevima.
-- Pomoćne funkcije za stringove fiksne dužine (`CHARACTER(len=n)`).
-- Intrinsici (`MOD`, `ABS`, `SQRT`, `SUM`...), u nedelji 3.
+| Header | Sadrži | Fortran → C++ |
+|---|---|---|
+| `array.hpp` | `f2c::Array<T, Rank>`: indeksi od 1 ili od zadate donje granice, column-major raspored, provera granica u debug build-u | `real :: m(2, 3)` → `f2c::Array<float, 2> m(2, 3);`<br>`real :: z(0:9)` → `f2c::Array<float, 1> z({f2c::Bounds(0, 9)});` |
+| `strings.hpp` | `f2c::FixedString` za `CHARACTER(len=n)`: dopunjava razmacima, odseca višak, poredi bez razmaka na kraju | `character(len=5) :: s` → `f2c::FixedString s(5);`<br>`s // t` → `f2c::concat(s, t)` |
+| `io.hpp` | `PRINT *`, `WRITE(*,*)` i `READ *`, sa formatom brojeva kao kod gfortrana i `T`/`F` za logičke vrednosti | `print *, x, 'a'` → `f2c::Print() << x << "a";`<br>`read *, n` → `f2c::Read() >> n;` |
+| `ops.hpp` | `**` | `i ** n` → `f2c::ipow(i, n)`, `x ** y` → `f2c::rpow(x, y)` |
+| `stop.hpp` | `STOP`, sa porukom i izlaznim kodom kao kod gfortrana | `stop 3` → `f2c::stop(3);` |
+| `intrinsics.hpp` | `MOD`, `ABS`, `SQRT`, `SUM`... | nedelja 3 |
+
+Obrazloženja (zašto C++20, zašto `std::vector`, zašto `Print()` objekat...) su u [docs/odluke.md](docs/odluke.md).
 
 Primer prevoda:
 
@@ -136,12 +141,12 @@ end program
 #include "f2c/runtime.hpp"
 
 int main() {
-    int i;
+    int i = 0;
     f2c::Array<float, 1> a(5);          // indeksi 1..5
     for (i = 1; i <= 5; ++i) {
         a(i) = static_cast<float>(f2c::ipow(i, 2));
     }
-    f2c::print(a(3));
+    f2c::Print() << a(3);               // 9.00000000, kao gfortran
 }
 ```
 
@@ -190,7 +195,7 @@ U nedelji 3, lokalni model (Ollama, preko `Microsoft.Extensions.AI`) predlaže �
 ## Zahtevi
 
 - .NET 10 SDK
-- `gfortran`, `g++`, `cmake`
+- `gfortran`, `g++` 11 ili noviji (generisani kod je C++20), `cmake`
 - (opciono, nedelja 3) [Ollama](https://ollama.com) sa lokalnim modelom
 
 ## Korišćenje
@@ -231,7 +236,7 @@ Fortran2Cpp/
 │   ├── Fortran2Cpp.Verification/  CompilerRunner, OutputComparer, Verifier, Report/  [1]
 │   ├── Fortran2Cpp.Ai/                                                           [3]
 │   └── Fortran2Cpp.Cli/        Program.cs                                        [1]
-├── runtime/f2c/                runtime, array, io, ops [1], intrinsics [3]
+├── runtime/f2c/                runtime, array, strings, io, ops, stop [1], intrinsics [3]
 ├── samples/                    free-form/, negative/ [1], multi-file/ [2], fixed-form/ [kasnije]
 ├── tests/Fortran2Cpp.Tests/    Parsing/, Semantics/, CodeGen/, Verification/, EndToEnd/
 └── docs/                       analiza.md, odluke.md
