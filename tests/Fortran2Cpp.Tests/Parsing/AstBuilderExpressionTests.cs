@@ -12,7 +12,7 @@ public class AstBuilderExpressionTests
     public void Builds_precedence_2_plus_3_times_4()
     {
         var ctx = (FortranParser.ExprOnlyContext)TestParser.ParseOk("2 + 3 * 4", p => p.exprOnly());
-        var ast = new AstBuilder("test.f90").BuildExpr(ctx.expr());
+        var ast = (Expr)new AstBuilder("test.f90").Visit(ctx);
 
         var add = Assert.IsType<BinaryExpr>(ast);
         Assert.Equal(BinaryOp.Add, add.Op);

@@ -89,6 +89,8 @@ public sealed record TypeDecl(
     SourceSpan Span) : Decl(Span);
 
 /// <summary>Stari oblik: <c>PARAMETER (n = 10, pi = 3.14)</c>.</summary>
+/// Bas zbog toga što je stari oblik, parser ga prepoznaje, ali faza 1 ne podržava. SemanticAnalyzer prijavljuje Unsupported dijagnostiku, a CodeGen ga nikad ne dobija.
+/// Starije verzije fortrana bice implementirane u fazi 2
 public sealed record ParameterStmt(
     ImmutableArray<NamedConstant> Constants,
     SourceSpan Span) : Decl(Span);
@@ -122,6 +124,7 @@ public abstract record DeclAttribute(SourceSpan Span) : Node(Span);
 public sealed record ParameterAttr(SourceSpan Span) : DeclAttribute(Span);
 public sealed record IntentAttr(Intent Intent, SourceSpan Span) : DeclAttribute(Span);
 public sealed record DimensionAttr(ImmutableArray<DimSpec> Dims, SourceSpan Span) : DeclAttribute(Span);
+public sealed record GenericAttr(string Name, SourceSpan Span) : DeclAttribute(Span);
 
 public enum Intent
 {
@@ -144,7 +147,10 @@ public sealed record EntityDecl(
 /// Jedna dimenzija: <c>10</c> (Lower = null, znači 1), <c>0:9</c>, <c>n</c>.
 /// Upper = null znači <c>*</c> ili <c>:</c>; faza 1 to ne podržava.
 /// </summary>
-public sealed record DimSpec(Expr? Lower, Expr? Upper, SourceSpan Span) : Node(Span);
+public sealed record DimSpec(
+    Expr? Lower, 
+    Expr? Upper, 
+    SourceSpan Span) : Node(Span);
 
 // -----------------------------------------------------------------------------
 // Naredbe
